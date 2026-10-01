@@ -12,8 +12,6 @@
 
 По сохранённому сравнению с историческим **private** leaderboard результат 0.28996 выше порога Top 10% (0.28995 на позиции 516), но ниже порога Top 5% (0.29023 на позиции 258). Это ориентир уровня качества.
 
-После добавления файлов ссылки ниже станут рабочими:
-
 ![Результат Kaggle: username и score](Screenshot_result.png)
 
 [Финальный submission.csv](submission.csv)
@@ -68,5 +66,89 @@
 - Ослабление регуляризации метамодели с `C=1` до `C=10` почти ничего не изменило: 0.281113 → 0.281112.
 - Замена заполнения медианой на `-1` в отдельном эксперименте не дала улучшения; точная оценка этого запуска не сохранена в текущем ноутбуке.
 
-## Воспроизведение
+## Воспроизведение результата
 
+Финальная схема вынесена в [`run_final.py`](run_final.py): он обучает стекинг с параметрами из ноутбука, считает локальный Gini и создаёт новый CSV. Переборы SVM, Random Forest и бустингов для этого запускать не нужно.
+
+### 1. Клонировать репозиторий и установить зависимости
+
+Исходный ноутбук выполнялся на **Python 3.14.4**, без GPU. Используйте Python 3.14 и отдельное окружение для Porto Seguro. Команды ниже выполняются в терминале; активация показана для macOS/Linux:
+
+```bash
+git clone --branch porto-seguro https://github.com/Denis-chupa/obesity-levels.git
+cd obesity-levels/porto-seguro
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+В Windows создайте окружение командой `py -3.14 -m venv .venv`, затем активируйте его в PowerShell: `.\.venv\Scripts\Activate.ps1`.
+
+[`requirements.txt`](requirements.txt) фиксирует прямые зависимости финального решения из исходного окружения. Полный исходный список пакетов сохранён в [`requirements-original.txt`](requirements-original.txt); он включает вспомогательные пакеты и зависит от платформы.
+
+### 2. Подготовить данные
+
+`train.csv` и `test.csv` не хранятся в Git. Скачайте их со [страницы данных соревнования](https://www.kaggle.com/competitions/porto-seguro-safe-driver-prediction/data), распакуйте и разместите рядом со скриптом:
+
+```text
+porto-seguro/
+├── run_final.py
+└── porto-seguro-safe-driver-prediction/
+    ├── train.csv
+    └── test.csv
+```
+
+Можно скачать архив через Kaggle CLI, который устанавливается вместе с зависимостями. Сначала примите правила соревнования на Kaggle и настройте авторизацию: сохраните API credentials в `~/.kaggle/kaggle.json` или используйте токен `KAGGLE_API_TOKEN` из [настроек аккаунта](https://www.kaggle.com/settings). Затем из каталога `porto-seguro/` выполните:
+
+```bash
+kaggle competitions download -c porto-seguro-safe-driver-prediction -p porto-seguro-safe-driver-prediction
+python -m zipfile -e porto-seguro-safe-driver-prediction/porto-seguro-safe-driver-prediction.zip porto-seguro-safe-driver-prediction
+```
+
+При ручном скачивании авторизация CLI не требуется. Для обучения достаточно двух CSV; выгрузка leaderboard и история отправок не нужны.
+
+### 3. Получить результат
+
+В активированном окружении выполните:
+
+```bash
+python run_final.py
+```
+
+Скрипт сначала использует стратифицированное разбиение 80/20 и печатает validation Gini, затем обучает стекинг на полном train и сохраняет **`submission_reproduced.csv`** со столбцами `id,target`. Порядок `id` совпадает с `test.csv`, `target` содержит вероятность страхового требования. Приложенный [`submission.csv`](submission.csv) сохраняется отдельно.
+
+Чтобы выполнить только один этап:
+
+```bash
+python run_final.py --mode validate
+python run_final.py --mode submit
+```
+
+Для данных в другом каталоге или другого имени результата:
+
+```bash
+python run_final.py --mode submit --data-dir /path/to/data --output /path/to/submission.csv
+```
+
+Стандартные пути привязаны к расположению скрипта, поэтому его можно запускать и из корня репозитория: `python porto-seguro/run_final.py`. Явные относительные пути в аргументах отсчитываются от текущего каталога. Обучение трёх бустингов в пяти фолдах требует времени и памяти; скрипт убирает поиск параметров, но выполняет полный финальный стекинг.
+
+### Запуск исследования в Jupyter
+
+Для графиков и всех экспериментов установите дополнительные зависимости и откройте ноутбук из каталога `porto-seguro/`:
+
+```bash
+python -m pip install -r requirements-notebook.txt
+python -m ipykernel install --sys-prefix --name porto-seguro --display-name "Python (Porto Seguro)"
+python -m jupyterlab research.ipynb
+```
+
+Выберите ядро **Python (Porto Seguro)**. Полный запуск ноутбука включает длительные переборы моделей. Ячейки истории отправок требуют авторизации Kaggle; сравнение с leaderboard использует приложенный CSV. Для финального результата достаточно скрипта выше.
+
+### Сопоставление с сохранённым результатом
+
+Ориентиры исходного запуска: **validation Gini ≈ 0.2835**, **Public Score 0.28504**, **Private Score 0.28996**. Локально вычисляется только validation Gini; Public и Private Score — оценки сохранённой отправки на Kaggle.
+
+`random_state=23` сохранён для внешнего разбиения, фолдов и метамодели; базовые модели используют исходные значения seed по умолчанию. Версии прямых зависимостей зафиксированы, но другая платформа, число потоков и версии косвенных зависимостей могут изменить прогнозы. Повторное обучение не гарантирует побитовое совпадение с приложенным `submission.csv`.
+
+Во внешней проверке частоты рассчитываются только по обучающей части. Внутри стекинга они остаются общими для его пяти фолдов, как в исходной финальной схеме.

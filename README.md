@@ -44,14 +44,25 @@
 - Локальный файл: [`ObesityDataSet_raw_and_data_sinthetic.csv`](ObesityDataSet_raw_and_data_sinthetic.csv)
 - Источник: [Obesity Levels — Kaggle](https://www.kaggle.com/datasets/fatemehmehrparvar/obesity-levels)
 
-## Запуск проекта
+## Воспроизведение результата
 
-Рекомендуемое окружение — Python 3.13 без GPU.
+Для исследования Obesity Levels используйте **Python 3.13**, без GPU. CSV уже включён в репозиторий: ноутбук читает локальный файл и не скачивает данные заново.
 
 ```bash
+git clone --branch porto-seguro https://github.com/Denis-chupa/obesity-levels.git
+cd obesity-levels
 python3.13 -m venv .venv
 source .venv/bin/activate
-pip install numpy pandas matplotlib seaborn scikit-learn scipy tqdm kagglehub jupyter ipykernel
-jupyter notebook research.ipynb
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python -m ipykernel install --sys-prefix --name obesity-levels --display-name "Python (Obesity Levels)"
+python -m jupyterlab research.ipynb
 ```
 
+В Windows создайте окружение командой `py -3.13 -m venv .venv`, затем активируйте его в PowerShell: `.\.venv\Scripts\Activate.ps1`.
+
+Выберите ядро **Python (Obesity Levels)** и выполните **Restart Kernel and Run All Cells**. Запускайте Jupyter из корня клонированного репозитория. Все ячейки, включая подбор параметров и порогов, должны выполниться последовательно; итоговые метрики выводятся в конце ноутбука. Ориентиры сохранённого запуска: Accuracy **0.9716**, F1 macro **0.9713**, ROC-AUC OvR macro **0.9980**. Полное исследование включает длительный подбор параметров.
+
+В [`requirements.txt`](requirements.txt) зафиксированы версии прямых зависимостей проверенного локального окружения Python 3.13. Они не являются полным снимком первоначального запуска; при другой версии окружения результаты могут немного отличаться.
+
+Исследование **Porto Seguro’s Safe Driver Prediction** находится в [`porto-seguro/`](porto-seguro/README.md). В его [разделе «Воспроизведение результата»](porto-seguro/README.md#воспроизведение-результата) описаны отдельное окружение, скачивание данных Kaggle и запуск финального стекинга одной командой.
