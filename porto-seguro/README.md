@@ -12,8 +12,6 @@
 
 По сохранённому сравнению с историческим **private** leaderboard результат 0.28996 выше порога Top 10% (0.28995 на позиции 516), но ниже порога Top 5% (0.29023 на позиции 258). Это ориентир уровня качества.
 
-После добавления файлов ссылки ниже станут рабочими:
-
 ![Результат Kaggle: username и score](Screenshot_result.png)
 
 [Финальный submission.csv](submission.csv)
@@ -68,65 +66,89 @@
 - Ослабление регуляризации метамодели с `C=1` до `C=10` почти ничего не изменило: 0.281113 → 0.281112.
 - Замена заполнения медианой на `-1` в отдельном эксперименте не дала улучшения; точная оценка этого запуска не сохранена в текущем ноутбуке.
 
-## Воспроизведение
+## Воспроизведение результата
 
-### 1. Подготовить окружение
+Финальная схема вынесена в [`run_final.py`](run_final.py): он обучает стекинг с параметрами из ноутбука, считает локальный Gini и создаёт новый CSV. Переборы SVM, Random Forest и бустингов для этого запускать не нужно.
 
-Создать отдельное окружение Python и установить зависимости:
+### 1. Клонировать репозиторий и установить зависимости
+
+Исходный ноутбук выполнялся на **Python 3.14.4**, без GPU. Используйте Python 3.14 и отдельное окружение для Porto Seguro. Команды ниже выполняются в терминале; активация показана для macOS/Linux:
 
 ```bash
-python -m venv .venv
+git clone --branch porto-seguro https://github.com/Denis-chupa/obesity-levels.git
+cd obesity-levels/porto-seguro
+python3.14 -m venv .venv
 source .venv/bin/activate
-python -m pip install numpy pandas scipy matplotlib seaborn scikit-learn lightgbm xgboost catboost jupyterlab
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-Версии исходного окружения не зафиксированы. Команда устанавливает необходимые пакеты, но не гарантирует побитовое совпадение прогнозов. Для точного повторения нужно сохранить версии из окружения финального запуска, например `python -m pip freeze > requirements.txt`, а также версию Python.
+В Windows создайте окружение командой `py -3.14 -m venv .venv`, затем активируйте его в PowerShell: `.\.venv\Scripts\Activate.ps1`.
 
-### 2. Подготовить данные и ноутбук
+[`requirements.txt`](requirements.txt) фиксирует прямые зависимости финального решения из исходного окружения. Полный исходный список пакетов сохранён в [`requirements-original.txt`](requirements-original.txt); он включает вспомогательные пакеты и зависит от платформы.
 
-Скачать `train.csv` и `test.csv` со [страницы данных соревнования](https://www.kaggle.com/competitions/porto-seguro-safe-driver-prediction/data). Разместить их в каталоге `porto-seguro-safe-driver-prediction/` рядом с ноутбуком. Для удобства назвать приложенный ноутбук `research.ipynb`.
+### 2. Подготовить данные
 
-В первой ячейке загрузки заменить абсолютный путь автора:
+`train.csv` и `test.csv` не хранятся в Git. Скачайте их со [страницы данных соревнования](https://www.kaggle.com/competitions/porto-seguro-safe-driver-prediction/data), распакуйте и разместите рядом со скриптом:
 
-```python
-url_train = "porto-seguro-safe-driver-prediction/train.csv"
+```text
+porto-seguro/
+├── run_final.py
+└── porto-seguro-safe-driver-prediction/
+    ├── train.csv
+    └── test.csv
 ```
 
-Запускать Jupyter из корня проекта:
+Можно скачать архив через Kaggle CLI, который устанавливается вместе с зависимостями. Сначала примите правила соревнования на Kaggle и настройте авторизацию: сохраните API credentials в `~/.kaggle/kaggle.json` или используйте токен `KAGGLE_API_TOKEN` из [настроек аккаунта](https://www.kaggle.com/settings). Затем из каталога `porto-seguro/` выполните:
 
 ```bash
-jupyter lab research.ipynb
+kaggle competitions download -c porto-seguro-safe-driver-prediction -p porto-seguro-safe-driver-prediction
+python -m zipfile -e porto-seguro-safe-driver-prediction/porto-seguro-safe-driver-prediction.zip porto-seguro-safe-driver-prediction
 ```
 
-### 3. Запустить финальную схему
+При ручном скачивании авторизация CLI не требуется. Для обучения достаточно двух CSV; выгрузка leaderboard и история отправок не нужны.
 
-Для воспроизведения финального решения не требуется повторять все переборы SVM и бустингов. После перезапуска ядра выполнить по порядку:
+### 3. Получить результат
 
-1. Первую ячейку с импортами и `RANDOM_STATE = 23`.
-2. Ячейку с импортами sklearn и чтением `df_train`.
-3. Дополнительные импорты и объявление имён классов ниже.
-4. Ячейку с определением `make_features()`.
-5. Ячейку с `results = {}` и определением `evaluate_model()`.
-6. Ячейку локального стекинга, начинающуюся с `from sklearn.base import clone` и разделения исходного `df_train` на `train_part` и `valid_part`.
-7. Ячейку под заголовком «Обучение stacking на полном train и прогноз для test».
+В активированном окружении выполните:
 
-Дополнительная ячейка для такого сокращённого запуска:
-
-```python
-import time
-from sklearn.impute import SimpleImputer
-from lightgbm import LGBMClassifier
-from xgboost import XGBClassifier
-from catboost import CatBoostClassifier
-
-class_names = ["0", "1"]
+```bash
+python run_final.py
 ```
 
-После последнего шага появится `submission.csv`. Ячейки получения списка отправок через Kaggle CLI и анализа локальной выгрузки leaderboard нужны только для отчёта, а не для обучения. Они требуют отдельно настроенного Kaggle CLI и CSV лидерборда соответственно.
+Скрипт сначала использует стратифицированное разбиение 80/20 и печатает validation Gini, затем обучает стекинг на полном train и сохраняет **`submission_reproduced.csv`** со столбцами `id,target`. Порядок `id` совпадает с `test.csv`, `target` содержит вероятность страхового требования. Приложенный [`submission.csv`](submission.csv) сохраняется отдельно.
 
-### Ограничения воспроизводимости и оценки
+Чтобы выполнить только один этап:
 
-- `random_state=23` зафиксирован для разбиений и метамодели; в текущем коде базовые модели используют значения seed по умолчанию библиотек.
-- Частотные признаки вычисляются до внутренних фолдов стекинга. Внешняя validation исключена из их расчёта, но внутри стекинга частоты общие.
-- Старые экспериментальные блоки считают частоты до внешнего разделения и используют другой порядок предобработки. Их оценки нельзя считать полностью сопоставимыми с финальным блоком.
-- Сохранённые выводы исследовательских ячеек могут относиться к предыдущим запускам. Точный CSV, соответствующий отправке `56736328`, необходимо приложить отдельно: повторное обучение не доказывает идентичность этой отправке.
+```bash
+python run_final.py --mode validate
+python run_final.py --mode submit
+```
+
+Для данных в другом каталоге или другого имени результата:
+
+```bash
+python run_final.py --mode submit --data-dir /path/to/data --output /path/to/submission.csv
+```
+
+Стандартные пути привязаны к расположению скрипта, поэтому его можно запускать и из корня репозитория: `python porto-seguro/run_final.py`. Явные относительные пути в аргументах отсчитываются от текущего каталога. Обучение трёх бустингов в пяти фолдах требует времени и памяти; скрипт убирает поиск параметров, но выполняет полный финальный стекинг.
+
+### Запуск исследования в Jupyter
+
+Для графиков и всех экспериментов установите дополнительные зависимости и откройте ноутбук из каталога `porto-seguro/`:
+
+```bash
+python -m pip install -r requirements-notebook.txt
+python -m ipykernel install --sys-prefix --name porto-seguro --display-name "Python (Porto Seguro)"
+python -m jupyterlab research.ipynb
+```
+
+Выберите ядро **Python (Porto Seguro)**. Полный запуск ноутбука включает длительные переборы моделей. Ячейки истории отправок требуют авторизации Kaggle; сравнение с leaderboard использует приложенный CSV. Для финального результата достаточно скрипта выше.
+
+### Сопоставление с сохранённым результатом
+
+Ориентиры исходного запуска: **validation Gini ≈ 0.2835**, **Public Score 0.28504**, **Private Score 0.28996**. Локально вычисляется только validation Gini; Public и Private Score — оценки сохранённой отправки на Kaggle.
+
+`random_state=23` сохранён для внешнего разбиения, фолдов и метамодели; базовые модели используют исходные значения seed по умолчанию. Версии прямых зависимостей зафиксированы, но другая платформа, число потоков и версии косвенных зависимостей могут изменить прогнозы. Повторное обучение не гарантирует побитовое совпадение с приложенным `submission.csv`.
+
+Во внешней проверке частоты рассчитываются только по обучающей части. Внутри стекинга они остаются общими для его пяти фолдов, как в исходной финальной схеме.

@@ -3,3 +3,8 @@
 .ipynb_checkpoints/
 __pycache__/
 *.pyc
+.env
+.env.*
+kaggle.json
+catboost_info/
+*.zip
