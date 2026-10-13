@@ -127,15 +127,23 @@ plt.tight_layout()
 fig.savefig(OUT / "errors.png", dpi=150)
 plt.close(fig)
 
-# 5. Ошибка растёт с удалением от обучающих данных.
-labels = ["следующий месяц\n(Jan–Jul → Sep)", "невиданные 4 месяца\n(блоки)", "Kaggle Public", "Kaggle Private"]
-values = [1.003, 1.047, 1.125, 1.338]
-fig, ax = plt.subplots(figsize=(7.5, 3.8))
-ax.bar(labels, values, color=["#9bb7d4", "#6f9fd0", "#e08e45", "#c0392b"])
-ax.set_ylim(0.9, 1.4)
-for i, v in enumerate(values):
-    ax.text(i, v, f"{v:.3f}", ha="center", va="bottom")
-ax.set_title("Одна и та же схема, разное удаление от обучающих данных (RMSE)")
+# 5. Ошибка растёт с удалением от обучающих данных: две версии решения.
+groups = {
+    "версия 3\n(отправка 1.338)": [1.003, 1.125, 1.338],
+    "итоговая версия\n(блоки месяцев, месяц)": [1.047, 1.145, 1.381],
+}
+labels = ["локальная проверка\n(разные схемы)", "Kaggle Public", "Kaggle Private"]
+fig, ax = plt.subplots(figsize=(7.5, 3.9))
+width = 0.36
+for i, (name, values) in enumerate(groups.items()):
+    positions = np.arange(3) + (i - 0.5) * width
+    ax.bar(positions, values, width, label=name, color=["#6f9fd0", "#c0392b"][i])
+    for x, v in zip(positions, values):
+        ax.text(x, v, f"{v:.3f}", ha="center", va="bottom", fontsize=8)
+ax.set_xticks(range(3), labels)
+ax.set_ylim(0.9, 1.45)
+ax.set_title("RMSE: проверка внутри 2016 года и Kaggle (2017–2018)")
+ax.legend(fontsize=8, loc="upper left")
 plt.tight_layout()
 fig.savefig(OUT / "horizon.png", dpi=150)
 plt.close(fig)
