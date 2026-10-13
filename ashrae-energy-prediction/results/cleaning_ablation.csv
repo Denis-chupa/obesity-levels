@@ -1,0 +1,11 @@
+fit_exclusion,predict_Sep,predict_Oct,predict_Nov,predict_Dec,mean
+none,1.0701,1.3614,1.0765,1.0479,1.1390
+zeros of meter 0 only (168 h),1.0458,1.3506,1.0448,1.0313,1.1181
+zeros of meter 0 + constant runs (168 h),1.0602,1.3608,1.0502,1.0239,1.1238
+zeros of meter 0 + constant runs (336 h),1.0666,1.3572,1.0554,1.0295,1.1272
+zeros of meter 0 + constant runs (72 h),1.0640,1.3620,1.0571,1.0283,1.1278
+zeros of meter 0 + constant runs (48 h),1.0737,1.3630,1.0606,1.0300,1.1318
+constant runs only (168 h),1.0793,1.3659,1.0700,1.0529,1.1420
+constant runs only (336 h),1.0784,1.3668,1.0755,1.0500,1.1427
+constant runs only (48 h),1.0778,1.3681,1.0751,1.0560,1.1443
+constant runs only (72 h),1.0904,1.3646,1.0726,1.0528,1.1451

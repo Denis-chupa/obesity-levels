@@ -1,0 +1,15 @@
+{
+  "loss_function": "RMSE",
+  "iterations": 600,
+  "random_seed": 42,
+  "verbose": false,
+  "allow_writing_files": false,
+  "thread_count": 2,
+  "max_ctr_complexity": 1,
+  "rsm": 0.7,
+  "random_strength": 0.0,
+  "one_hot_max_size": 255,
+  "learning_rate": 0.2,
+  "l2_leaf_reg": 10.0,
+  "depth": 10
+}
