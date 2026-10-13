@@ -1,0 +1,19 @@
+scheme,model,features,fold_0,fold_1,fold_2,mean
+blocks of 4 months,LightGBM 100 trees,current,1.5975,1.1910,1.1494,1.3127
+blocks of 4 months,LightGBM 100 trees,+ temperature windows,1.6022,1.1895,1.1494,1.3137
+blocks of 4 months,LightGBM 100 trees,+ windows + holidays,1.5950,1.1868,1.1461,1.3093
+blocks of 4 months,LightGBM 100 trees,+ windows + holidays + month,1.6011,1.1755,1.1282,1.3016
+blocks of 4 months,LightGBM 100 trees,+ windows + holidays + day of year,1.6143,1.1909,1.1335,1.3129
+blocks of 4 months,LightGBM 100 trees,+ windows + holidays + month + day of year,1.6143,1.1913,1.1335,1.3130
+blocks of 4 months,LightGBM 400 trees / 127 leaves,current,1.5769,1.1569,1.1412,1.2917
+blocks of 4 months,LightGBM 400 trees / 127 leaves,+ temperature windows,1.5761,1.1523,1.1398,1.2894
+blocks of 4 months,LightGBM 400 trees / 127 leaves,+ windows + holidays,1.5778,1.1530,1.1397,1.2902
+blocks of 4 months,LightGBM 400 trees / 127 leaves,+ windows + holidays + month,1.5412,1.1292,1.0914,1.2539
+blocks of 4 months,LightGBM 400 trees / 127 leaves,+ windows + holidays + day of year,1.5556,1.1122,1.1202,1.2627
+blocks of 4 months,LightGBM 400 trees / 127 leaves,+ windows + holidays + month + day of year,1.5556,1.1132,1.1202,1.2630
+interleaved months,LightGBM 100 trees,current,1.3474,1.2095,1.1271,1.2280
+interleaved months,LightGBM 100 trees,+ temperature windows,1.3441,1.2111,1.1293,1.2282
+interleaved months,LightGBM 100 trees,+ windows + holidays,1.3453,1.2103,1.1234,1.2263
+interleaved months,LightGBM 100 trees,+ windows + holidays + month,1.3244,1.2032,1.1102,1.2126
+interleaved months,LightGBM 100 trees,+ windows + holidays + day of year,1.3312,1.1897,1.1064,1.2091
+interleaved months,LightGBM 100 trees,+ windows + holidays + month + day of year,1.3311,1.1910,1.1053,1.2091

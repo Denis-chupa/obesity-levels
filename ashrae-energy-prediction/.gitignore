@@ -1,0 +1,23 @@
+.venv/
+.venv-*/
+__pycache__/
+.ipynb_checkpoints/
+.pytest_cache/
+.DS_Store
+.env
+kaggle.json
+credentials.json
+
+# raw Kaggle data and derived tables (regenerate: prepare_data.py)
+ashrae-energy-prediction/
+train_full.parquet
+artifacts/*.parquet
+artifacts/cv_parts/
+artifacts/test_parts/
+artifacts/backup*/
+artifacts/stack5_previous.joblib
+
+# submissions are 260+ MB: attached to the GitHub release instead
+*.csv.gz
+submission.tmp.csv.gz
+catboost_info/

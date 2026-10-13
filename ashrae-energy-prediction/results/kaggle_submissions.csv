@@ -1,0 +1,5 @@
+ref,fileName,date,description,status,publicScore,privateScore
+57147426,submission_v2_clipped.csv.gz,2026-10-13 14:57:18.513000,,SubmissionStatus.COMPLETE,1.125,1.338
+57141061,submission_clipped.csv.gz,2026-10-13 11:10:01.927000,,SubmissionStatus.COMPLETE,1.125,1.338
+57136288,submission.csv.gz,2026-10-13 08:13:11.943000,,SubmissionStatus.COMPLETE,1.19,1.427
+57122102,submission.csv.gz,2026-10-12 23:33:36.087000,,SubmissionStatus.COMPLETE,1.192,1.428

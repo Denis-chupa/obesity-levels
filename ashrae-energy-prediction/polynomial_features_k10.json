@@ -1,0 +1,12 @@
+[
+  "square_feet",
+  "square_feet year_built^2",
+  "square_feet air_temperature^2",
+  "square_feet air_temperature air_temperature_mean_3h",
+  "square_feet dew_temperature^2",
+  "square_feet wind_speed^2",
+  "square_feet air_temperature_mean_3h^2",
+  "square_feet air_temperature_mean_72h^2",
+  "square_feet air_temperature_lag_24h^2",
+  "square_feet air_temperature_diff_72h^2"
+]
