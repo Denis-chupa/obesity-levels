@@ -21,8 +21,8 @@ columns = ["building_id", "meter", "timestamp", "meter_reading", "site_id", "con
 train = pd.read_parquet("artifacts/train_full.parquet", columns=columns)
 train["y"] = np.log1p(train["meter_reading"])
 
-# 1. Данные: строки по счётчикам, распределение целевой, сезонность.
-fig, axes = plt.subplots(1, 3, figsize=(14, 3.9))
+# 1. Данные: строки по счётчикам и распределение целевой.
+fig, axes = plt.subplots(1, 2, figsize=(10, 3.9))
 share = train["meter"].value_counts(normalize=True).sort_index()
 axes[0].bar(METERS, share.to_numpy(), color=COLORS)
 axes[0].set_title("Доля строк по типу счётчика")
@@ -34,11 +34,6 @@ for meter in range(4):
                  bins=60, histtype="step", color=COLORS[meter], label=METERS[meter], density=True)
 axes[1].set(title="log1p(meter_reading) по счётчикам", xlabel="log1p(meter_reading)")
 axes[1].legend(fontsize=8)
-monthly = train.groupby([train["timestamp"].dt.month, "meter"])["y"].mean().unstack()
-for meter in range(4):
-    axes[2].plot(monthly.index, monthly[meter], marker="o", color=COLORS[meter], label=METERS[meter])
-axes[2].set(title="Среднее log1p по месяцам 2016", xlabel="месяц")
-axes[2].set_xticks(range(1, 13))
 plt.tight_layout()
 fig.savefig(OUT / "data_overview.png", dpi=150)
 plt.close(fig)
