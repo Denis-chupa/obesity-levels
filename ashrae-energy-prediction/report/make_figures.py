@@ -122,6 +122,31 @@ plt.tight_layout()
 fig.savefig(OUT / "errors.png", dpi=150)
 plt.close(fig)
 
+# 6. Отбор полиномиальных комбинаций: линейная модель по k и MLP k × архитектура.
+selection = pd.read_csv("results/polynomial_selection.csv")
+grid = pd.read_csv("results/mlp_grid.csv").pivot(index="architecture", columns="k", values="rmse_august")
+grid = grid.loc[["32", "32-8", "64-32-8", "64-32-16-8"]]
+fig, axes = plt.subplots(1, 2, figsize=(12, 3.8), gridspec_kw={"width_ratios": [1.1, 1]})
+curve = selection[selection["k"] > 0]
+axes[0].plot(curve["k"], curve["rmse_oct_dec"], marker="o", color="#2c5d94", label="SGD: полиномы + циклические + One-Hot")
+axes[0].axhline(selection.loc[selection["k"] == 0, "rmse_oct_dec"].iloc[0], color="#888888", ls="--",
+                label="без полиномов (циклические + One-Hot)")
+axes[0].set(title="Линейная модель: RMSE от числа комбинаций k", xlabel="k (лучших по f_regression)", ylabel="RMSE, окт–дек 2016")
+axes[0].set_xticks(curve["k"])
+axes[0].legend(fontsize=8)
+im = axes[1].imshow(grid.to_numpy(), cmap="viridis_r", aspect="auto")
+axes[1].set_xticks(range(grid.shape[1]), grid.columns)
+axes[1].set_yticks(range(grid.shape[0]), grid.index)
+for i in range(grid.shape[0]):
+    for j in range(grid.shape[1]):
+        v = grid.iloc[i, j]
+        axes[1].text(j, i, f"{v:.3f}", ha="center", va="center", fontsize=8, color="white" if v > 1.2 else "black")
+axes[1].set(title="MLP: RMSE августа, k × архитектура", xlabel="k (полиномов на входе)", ylabel="скрытые слои")
+plt.colorbar(im, ax=axes[1], fraction=0.046)
+plt.tight_layout()
+fig.savefig(OUT / "polynomials.png", dpi=150)
+plt.close(fig)
+
 # 5. Ошибка растёт с удалением от обучающих данных: две версии решения.
 groups = {
     "версия 3\n(отправка 1.338)": [1.003, 1.125, 1.338],
